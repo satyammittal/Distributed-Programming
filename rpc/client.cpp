@@ -4,6 +4,25 @@
 #include "prog.h"
 #include <vector>
 #include <fstream>
+#define RESET   "\033[0m"
+#define BLACK   "\033[30m"      /* Black */
+#define RED     "\033[31m"      /* Red */
+#define GREEN   "\033[32m"      /* Green */
+#define YELLOW  "\033[33m"      /* Yellow */
+#define BLUE    "\033[34m"      /* Blue */
+#define MAGENTA "\033[35m"      /* Magenta */
+#define CYAN    "\033[36m"      /* Cyan */
+#define WHITE   "\033[37m"      /* White */
+#define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
+#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
+#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
+#define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
+#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
+#define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
+#define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
+#define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+ 
+#define CLEAR "\033[2J"  // clear screen escape code 
 extern __thread int errno;
 using namespace std;
 
@@ -41,17 +60,43 @@ int put_file(char *host, char *name)
         //cout<<"asda\n";
         read_bytes = fread(data, 1, MAXLEN, file);
         //cout<<"asda\n";
-        cout<<data<<'\n';
+        //cout<<data<<'\n';
         total_bytes += read_bytes;
         //cout<<"asda\n";
-        cout<<data<<'\n';
+        //cout<<data<<'\n';
         memcpy(chunk.data, data, read_bytes);
         chunk.bytes = read_bytes;
         String* res = sendfile_1(&chunk, clnt);
         char* str = res->String_val;
-        string parsed(str);
-        cout<<parsed<<'\n';
- 
+        char* token;
+        token = strtok (str,"\n");
+        while(token != NULL)
+        {
+        string parsed(token);
+        if(parsed.find('{')==string::npos)
+        {
+            token = strtok (NULL,"\n");
+            continue;
+        }
+        //cout<<parsed<<'\n';
+        //std::cout << CLEAR;
+        for(int i=0;i<parsed.length();i++){
+                if(parsed[i]=='{')
+                {
+                    cout<<GREEN;
+                }
+                else if(parsed[i]=='}')
+                {
+                    cout<<RESET;
+                }
+                else{
+                    cout<<parsed[i];
+                }
+        }
+        cout<<'\n';
+        token = strtok (NULL,"\n");
+        
+        }
         int len_pattern = 5;
         int j=0;
         int u = str[0];
@@ -154,12 +199,5 @@ int main(int argc, char *argv[])
     const char *cstar = file.c_str();
     strcpy(command, cstar);
     put_file(host,command);
-    String *s;
-    s = (String *)malloc(sizeof(String));
-    s->String_val = &t[0];
-    s->String_len = t.length() * sizeof(char); 
-    void *h;
-    String * print = sendstrings_1(s, Client);
-    cout << "String: " << print->String_val << endl;
     return 0;
 }
