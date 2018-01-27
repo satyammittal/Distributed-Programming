@@ -4,7 +4,7 @@ const MAXLEN = 1024;
  * Type for storing path
  */
 typedef string filename<MAXLEN>;
-
+typedef char String<MAXLEN>;
 /*
  * Structure for sending request. Expects the path of the file
  * and the byte number at which to start reading the file from
@@ -50,8 +50,11 @@ typedef struct chunkreceive chunkreceive;
 struct chunksend {
     filename name;
     filechunk data;
+    String pattern;
+    int flag;
     int bytes;
 };
+
 
 /*
  * Type that represents the structure for file's chunks
@@ -77,7 +80,7 @@ struct intpair {
     int b;
 };
 
-typedef char String<MAXLEN>;
+
 
 program MATHPROG {
     version MATHVERS {

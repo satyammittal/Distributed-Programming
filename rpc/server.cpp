@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include<sstream>
+#include<algorithm>
 using namespace std;
 extern __thread int errno;
 
@@ -147,23 +148,39 @@ readfile_res* retrievefile_1_svc(request *req, struct svc_req *rqstp)
     fclose(file);
     return (&res);
 }
-string find_grep(char* t)
+string find_grep(char* t, string pattern, int flag)
 {
+    cout<<flag<<'\n';
     string line(t);
-    string pattern = "linux";
-        size_t nPos = line.find(pattern, 0);
-        int i=0;
-        string s1="";
-        while(nPos!=string::npos)
-        {
-            s1 += line.substr(i, nPos-i);
+    string real_line = line;
+    if(flag==1)
+    {
+            transform(pattern.begin(), pattern.end(), pattern.begin(), ::tolower);
+            transform(line.begin(), line.end(), line.begin(), ::tolower);
+    }
+    size_t nPos = line.find(pattern, 0);
+    int i=0;
+    string s1="";
+    int count=0;
+    while(nPos!=string::npos)
+    {
+            s1 += real_line.substr(i, nPos-i);
             i = nPos+pattern.length();
+            count++;
+            s1 += "{"+real_line.substr(nPos, pattern.length())+"}";
             nPos = line.find(pattern, nPos+1);
-            s1 += "{"+pattern+"}";
-        }
-        s1+=line.substr(i);
-        s1+="\0";
-     return s1;
+    }
+    s1+=real_line.substr(i);
+    //s1+="\0";
+    if(flag!=2)
+    return s1;
+    else{
+        stringstream ss;
+        ss<<count;
+        string s1;
+        ss>>s1;
+        return s1;
+    }
 }
 String *sendfile_1_svc(chunksend *rec, struct svc_req *rqstp)
 {
@@ -171,17 +188,9 @@ String *sendfile_1_svc(chunksend *rec, struct svc_req *rqstp)
     int write_bytes;
     static int result;
     cout<<"output-> "<<rec->name<<'\n';
-    string t(rec->name);
-    t+="_server"; 
-    file = fopen(t.c_str(), "a");
-    if (file == NULL) {
-        result = errno;
-        return NULL;
-    }
-
-    write_bytes = fwrite(rec->data, 1, rec->bytes, file);
-    fclose(file);
-    string r1 = find_grep(rec->data);
+    String pat = rec->pattern;
+    string pattern(pat.String_val);
+    string r1 = find_grep(rec->data,pattern,rec->flag);
     String *tosend;
     tosend = (String *)malloc(sizeof(String));
     int l=r1.length();

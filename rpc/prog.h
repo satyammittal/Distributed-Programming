@@ -17,6 +17,11 @@ extern "C" {
 
 typedef char *filename;
 
+typedef struct {
+	u_int String_len;
+	char *String_val;
+} String;
+
 struct request {
 	filename name;
 	int start;
@@ -36,6 +41,8 @@ typedef struct chunkreceive chunkreceive;
 struct chunksend {
 	filename name;
 	filechunk data;
+	String pattern;
+	int flag;
 	int bytes;
 };
 typedef struct chunksend chunksend;
@@ -54,11 +61,6 @@ struct intpair {
 	int b;
 };
 typedef struct intpair intpair;
-
-typedef struct {
-	u_int String_len;
-	char *String_val;
-} String;
 
 #define MATHPROG 0x20000008
 #define MATHVERS 1
@@ -110,6 +112,7 @@ extern int mathprog_1_freeresult ();
 
 #if defined(__STDC__) || defined(__cplusplus)
 extern  bool_t xdr_filename (XDR *, filename*);
+extern  bool_t xdr_String (XDR *, String*);
 extern  bool_t xdr_request (XDR *, request*);
 extern  bool_t xdr_request (XDR *, request*);
 extern  bool_t xdr_filechunk (XDR *, filechunk);
@@ -119,10 +122,10 @@ extern  bool_t xdr_chunksend (XDR *, chunksend*);
 extern  bool_t xdr_chunksend (XDR *, chunksend*);
 extern  bool_t xdr_readfile_res (XDR *, readfile_res*);
 extern  bool_t xdr_intpair (XDR *, intpair*);
-extern  bool_t xdr_String (XDR *, String*);
 
 #else /* K&R C */
 extern bool_t xdr_filename ();
+extern bool_t xdr_String ();
 extern bool_t xdr_request ();
 extern bool_t xdr_request ();
 extern bool_t xdr_filechunk ();
@@ -132,7 +135,6 @@ extern bool_t xdr_chunksend ();
 extern bool_t xdr_chunksend ();
 extern bool_t xdr_readfile_res ();
 extern bool_t xdr_intpair ();
-extern bool_t xdr_String ();
 
 #endif /* K&R C */
 

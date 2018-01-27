@@ -16,6 +16,17 @@ xdr_filename (XDR *xdrs, filename *objp)
 }
 
 bool_t
+xdr_String (XDR *xdrs, String *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_array (xdrs, (char **)&objp->String_val, (u_int *) &objp->String_len, MAXLEN,
+		sizeof (char), (xdrproc_t) xdr_char))
+		 return FALSE;
+	return TRUE;
+}
+
+bool_t
 xdr_request (XDR *xdrs, request *objp)
 {
 	register int32_t *buf;
@@ -58,6 +69,10 @@ xdr_chunksend (XDR *xdrs, chunksend *objp)
 		 return FALSE;
 	 if (!xdr_filechunk (xdrs, objp->data))
 		 return FALSE;
+	 if (!xdr_String (xdrs, &objp->pattern))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->flag))
+		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->bytes))
 		 return FALSE;
 	return TRUE;
@@ -89,17 +104,6 @@ xdr_intpair (XDR *xdrs, intpair *objp)
 	 if (!xdr_int (xdrs, &objp->a))
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->b))
-		 return FALSE;
-	return TRUE;
-}
-
-bool_t
-xdr_String (XDR *xdrs, String *objp)
-{
-	register int32_t *buf;
-
-	 if (!xdr_array (xdrs, (char **)&objp->String_val, (u_int *) &objp->String_len, MAXLEN,
-		sizeof (char), (xdrproc_t) xdr_char))
 		 return FALSE;
 	return TRUE;
 }
